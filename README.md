@@ -73,6 +73,10 @@ Datasource Components for KnockoutJs for paging, sorting and filtering remote so
 
 Sample usage: http://jsfiddle.net/craigcav/UzUBm/
 
+##More Info:
+
+http://craigcav.wordpress.com/2012/05/21/ko-datasourceenable-simple-binding-to-remote-data-sources/
+
 ##Kudos
 
 None of this would've been possible without the inspiring work [Ryan Niemeyer](https://twitter.com/#!/RPNiemeyer) put into documenting KnockoutJS. In particular without the following two posts, this plugin wouldn't exist.
