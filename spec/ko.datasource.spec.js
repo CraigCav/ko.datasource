@@ -6,7 +6,7 @@ describe('DataSource', function() {
       sampleData = [{ item: 1 }],
       lastRequest,
       datasource = ko.observableArray([]).extend({ 
-         datasource: function( request, response ){
+         datasource: function() {
             requestCount++;
             lastRequest = this;
             this(sampleData);
