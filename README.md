@@ -15,56 +15,56 @@ Datasource Components for KnockoutJs for paging, sorting and filtering remote so
 2. Specify your markup as if you were binding to a standard observable or observableArray.
 
     ```html
-		<table>
-		    <thead>
-		        <tr>
-		            <th>Id</th>
-		            <th>Name</th>
-		            <th>Sales</th>
-		            <th>Price</th>
-		        </tr>
-		    </thead>
-		    <tbody data-bind="foreach: items">
-		        <tr>
-		            <td data-bind="text: id"></td>
-		            <td data-bind="text: name"></td>
-		            <td data-bind="text: sales"></td>
-		            <td data-bind="text: price"></td>
-		        </tr>
-		    </tbody>            
-		</table>
+	<table>
+	    <thead>
+	        <tr>
+	            <th>Id</th>
+	            <th>Name</th>
+	            <th>Sales</th>
+	            <th>Price</th>
+	        </tr>
+	    </thead>
+	    <tbody data-bind="foreach: items">
+	        <tr>
+	            <td data-bind="text: id"></td>
+	            <td data-bind="text: name"></td>
+	            <td data-bind="text: sales"></td>
+	            <td data-bind="text: price"></td>
+	        </tr>
+	    </tbody>            
+	</table>
     ```
 2b. Optionally specify a pager if desired.
 
     ```html
-		<span id="pager">
-		    <button data-bind="click: items.pager.first">First</button>
-		    <button data-bind="click: items.pager.previous">Prev</button>
-		    <span class="summary">Page 
-		        <span data-bind="text: items.pager.page"></span> of 
-		        <span data-bind="text: items.pager.totalPages"></span></span>
-		    <button data-bind="click: items.pager.next">Next</button>
-		    <button data-bind="click: items.pager.last">Last</button>
-		</span>
+	<span id="pager">
+	    <button data-bind="click: items.pager.first">First</button>
+	    <button data-bind="click: items.pager.previous">Prev</button>
+	    <span class="summary">Page 
+	        <span data-bind="text: items.pager.page"></span> of 
+	        <span data-bind="text: items.pager.totalPages"></span></span>
+	    <button data-bind="click: items.pager.next">Next</button>
+	    <button data-bind="click: items.pager.last">Last</button>
+	</span>
     ```
 
 3. Extend an observable or observableArray with the datasource. The single parameter is a function that provides your data. 
-*Optionally* include a the pager extender to add paging support.
+*Optionally* include the pager extender to add paging support.
 
     ```JavaScript
-		var viewModel = {
-		    items: ko.observableArray([]).extend({
-		        datasource: getAnimals, //getAnimals is a data service to populate the viewmodel
-		        pager: {
-		            limit: 3
-		        }
-		    })
-		};
+	var viewModel = {
+	    items: ko.observableArray([]).extend({
+	        datasource: getAnimals, //getAnimals is a data service to populate the viewmodel
+	        pager: {
+	            limit: 3
+	        }
+	    })
+	};
     ```
 4. Apply Bindings
 
     ```JavaScript
-		ko.applyBindings(viewModel);​
+	ko.applyBindings(viewModel);​
     ```
 
 5. Enjoy!
@@ -72,6 +72,13 @@ Datasource Components for KnockoutJs for paging, sorting and filtering remote so
 ##Live Sample
 
 Sample usage: http://jsfiddle.net/craigcav/UzUBm/
+
+##Kudos
+
+None of this would've been possible without the inspiring work [Ryan Niemeyer](https://twitter.com/#!/RPNiemeyer) put into documenting KnockoutJS. In particular without the following two posts, this plugin wouldn't exist.
+
+http://www.knockmeout.net/2011/04/pausing-notifications-in-knockoutjs.html
+http://www.knockmeout.net/2011/06/lazy-loading-observable-in-knockoutjs.html
 
 ##License
 
