@@ -1,26 +1,32 @@
-(function (ko) {
-    function datasource( source, target ){
-        var target = target || ko.observable(),
-            paused = true;
+/*! https://github.com/CraigCav/ko.datasource */
+(function ( ko ) {
+    function datasource( source, target ) {
+        var _target = target || ko.observable(),
+            paused = true,
             trigger = ko.observable( false ),
-            result = ko.computed({
+            result = ko.computed( {
                 read: function () {
-                    if (paused) {
+                    if ( paused ) {
                         paused = false;
-                        trigger(true);
+                        trigger( true );
                     }
-                    return target();
+                    return _target();
                 },
-                write: function(newValue) {
-                    target( newValue );
+                write: function ( newValue ) {
+                    _target( newValue );
                 },
-                deferEvaluation: true  
-            });
+                deferEvaluation: true
+            } );
 
-        ko.computed(function() {
-            if(!trigger()) return;
+        ko.computed( function () {
+            if ( !trigger() ) return;
             source.call( result );
-        });
+        } );
+
+        result.refresh = function () {
+            trigger( trigger() + 1 );
+        };
+
         return result;
     }
 
@@ -29,27 +35,27 @@
         this.totalCount = ko.observable( 0 );
         this.limit = ko.observable( limit );
 
-        this.totalPages = ko.computed(function () {
-            return Math.ceil(ko.utils.unwrapObservable(this.totalCount) / ko.utils.unwrapObservable(this.limit));
-        }, this);
+        this.totalPages = ko.computed( function () {
+            return Math.ceil( ko.utils.unwrapObservable( this.totalCount ) / ko.utils.unwrapObservable( this.limit ) );
+        }, this );
 
         this.next = function () {
             var currentPage = this.page();
             this.page( currentPage + 1 );
-        }.bind(this);
+        } .bind( this );
 
         this.previous = function () {
             var currentPage = this.page();
             this.page( currentPage === 0 ? 0 : currentPage - 1 );
-        }.bind(this);
+        } .bind( this );
 
         this.first = function () {
             this.page( 1 );
-        }.bind(this);
+        } .bind( this );
 
         this.last = function () {
             this.page( this.totalPages() );
-        }.bind(this);
+        } .bind( this );
     }
 
     ko.extenders.datasource = function ( target, source ) {
@@ -58,10 +64,10 @@
         return result;
     };
 
-    ko.extenders.pager = function (datasource, options) {
+    ko.extenders.pager = function ( target, options ) {
         var pager = new Pager( options.limit || 10 );
-        datasource.options = datasource.options || {};
-        datasource.options.pager = datasource.pager = pager;
-        return datasource;
+        target.options = target.options || {};
+        target.options.pager = target.pager = pager;
+        return target;
     };
-})(ko);
+} )( ko );
