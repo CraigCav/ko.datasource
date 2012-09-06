@@ -36,7 +36,8 @@
         this.limit = ko.observable( limit );
 
         this.totalPages = ko.computed( function () {
-            return Math.ceil( ko.utils.unwrapObservable( this.totalCount ) / ko.utils.unwrapObservable( this.limit ) );
+            var count = Math.ceil( ko.utils.unwrapObservable( this.totalCount ) / ko.utils.unwrapObservable( this.limit ) )
+            return count == 0 ? 1 : count;
         }, this );
 
         this.next = function () {
