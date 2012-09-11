@@ -1,10 +1,14 @@
 describe('DataSource', function() {
-   var ko = global.ko = require('knockout');
+   ko = require('knockout');
    require('../ko.datasource.js');
 
    var requestCount = 0,
       sampleData = [{ item: 1 }],
       lastRequest,
+      datasource;
+
+   beforeEach(function() {
+      requestCount = 0;
       datasource = ko.observableArray([]).extend({ 
          datasource: function() {
             requestCount++;
@@ -15,6 +19,7 @@ describe('DataSource', function() {
          },
          pager: { limit: 3 }
       });
+   });
 
    it('should trigger a request when reading from the observable', function() {
       expect( requestCount ).toEqual( 0 );
@@ -22,21 +27,62 @@ describe('DataSource', function() {
       expect( requestCount ).toEqual( 1 );
    });
 
+   it('should indicate when the datasource is loading', function() {
+      expect( datasource.loading() ).toBe( false );
+
+      var triggered = false;
+
+      datasource.loading.subscribe(function(value) {
+         triggered = true;
+      });
+
+      datasource();
+      expect( triggered ).toBe( true );
+   });
+
+   it('should reset loading indicator when datasource has been filled', function() {
+      var triggered = false;
+
+      datasource.loading.subscribe(function(value) {
+         triggered = true;
+      });
+
+      datasource();
+
+      expect( datasource.loading() ).toBe( false );
+   });
+
+   it('should only indicate loading when datasource function is being invoked (not cached)', function() {
+      var triggerCount = 0;
+
+      datasource.loading.subscribe(function(loading) {
+         if(loading) triggerCount++;
+      });
+
+      datasource(); //lazily loaded
+      datasource(); //cached
+
+      expect( triggerCount ).toEqual( 1 );
+   });
+
    it('should contain the results of the response', function() {
       expect( datasource() ).toEqual( sampleData );
    });
 
    describe('Pagination', function() {       
+      beforeEach(function() {
+         datasource();
+      });
+
       it('should limit results', function() {
          expect( lastRequest.pager.limit() ).toEqual( 3 );
       });
 
       it('should know total row count', function() {
-            expect( datasource.pager.totalCount() ).toEqual( 10 );
+         expect( datasource.pager.totalCount() ).toEqual( 10 );
       });
 
       it('should trigger datasource to re-evaluate on pagination', function() {
-         expect( requestCount ).toEqual( 1 );
          datasource.pager.page( 2 );
          expect( requestCount ).toEqual( 2 );
       });

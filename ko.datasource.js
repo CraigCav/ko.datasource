@@ -4,6 +4,7 @@
         var _target = target || ko.observable(),
             paused = true,
             trigger = ko.observable( false ),
+            loading = ko.observable( false ),
             result = ko.computed( {
                 read: function () {
                     if ( paused ) {
@@ -14,18 +15,22 @@
                 },
                 write: function ( newValue ) {
                     _target( newValue );
+                    loading( false );
                 },
                 deferEvaluation: true
             } );
 
         ko.computed( function () {
             if ( !trigger() ) return;
+            loading( true );
             source.call( result );
         } );
 
         result.refresh = function () {
             trigger( trigger() + 1 );
         };
+
+        result.loading = loading;
 
         return result;
     }
