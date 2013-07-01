@@ -45,6 +45,15 @@
             return count == 0 ? 1 : count;
         }, this );
 
+        this.pages = ko.computed(function () {
+            var a = [];
+            var count = this.totalPages();
+            for (var p = 0; p < count; p++) {
+                a.push(p + 1);
+            }
+            return a;
+        }, this);
+
         this.next = function () {
             var currentPage = this.page();
             this.page( currentPage + 1 );
@@ -55,6 +64,10 @@
             this.page( currentPage === 0 ? 0 : currentPage - 1 );
         } .bind( this );
 
+        this.specific = function (page) {
+            this.page(page);
+        }.bind(this);
+
         this.first = function () {
             this.page( 1 );
         } .bind( this );
@@ -62,6 +75,14 @@
         this.last = function () {
             this.page( this.totalPages() );
         } .bind( this );
+        
+        this.isFirstPage = ko.computed(function () {
+            return this.page() == 1;
+        }, this);
+
+        this.isLastPage = ko.computed(function () {
+            return this.page() == this.totalPages();
+        }, this);
     }
 
     ko.extenders.datasource = function ( target, source ) {
