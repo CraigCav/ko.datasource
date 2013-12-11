@@ -21,12 +21,24 @@
             }),
             async = false,
             callback = function (state, value) {
-                var source = state.source, isAsync = state.isAsync, sync = state.sync;
-                if (!isAsync) {
-                    result(value);
+                var source = state.source, isAsync = state.isAsync, sync = state.sync
+                if (target.pager && value.meta) {
+                    if (!isAsync) {
+                        result(value.data);
+                        result.pager.totalCount(value.meta.count);
+                    } else {
+                        if (source.sync == sync) {
+                            result(value.data);
+                            target.pager.totalCount(value.meta.count);
+                        }
+                    }
                 } else {
-                    if (source.sync == sync) {
+                    if (!isAsync) {
                         result(value);
+                    } else {
+                        if (source.sync == sync) {
+                            result(value);
+                        }
                     }
                 }
             },
@@ -91,24 +103,49 @@
                 }
                 else {
                     xhr.setRequestHeader('Content-type', contentType ? contentType : 'application/x-www-form-urlencoded');
+                    var serialize = function (obj) {
+                        var str = [];
+                        for (var p in obj) {
+                            if (obj.hasOwnProperty(p)) {
+                                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                            }
+                        }
+                        return str.join("&");
+                    }
+                    if (typeof (params) == 'object') {
+                        params = serialize(params);
+                    }
                     xhr.send(params)
                 }
                 return xhr;
             },
             query = function(settings, async, callback){
-                var body = ko.computed(function () {
-                    var serialized = JSON.stringify(settings.params, function (key, value) {
-                        if (!ko.isObservable(value)) return value;
-                        return ko.utils.unwrapObservable(value);
-                    });
-                    return JSON.parse(serialized);
-                })();
+                if (!query.params) {
+                    query.params = ko.computed(function () {
+                        if (settings.params) {
+                            if (target.pager) {
+                                var limit = target.pager.limit();
+                                var page = target.pager.page();
+                                settings.params.skip = (page-1) * limit;
+                                settings.params.take = limit;
+                            }
+                            var serialized = JSON.stringify(settings.params, function (key, value) {
+                                if (!ko.isObservable(value)) return value;
+                                return ko.utils.unwrapObservable(value);
+                            });
+                            
+                            return JSON.parse(serialized);
+                        }
+                        return null;
+                    })
+                };
+
                 if (query.xhr && async) {
                     query.xhr.aborted = true;
                     query.xhr.abort();
                     query.xhr = null;
                 }
-                query.xhr = tinyxhr(settings.url, callback, settings.method || 'POST', settings.contentType, settings.timeout, body);
+                query.xhr = tinyxhr(settings.url, callback, settings.method || 'POST', settings.contentType, settings.timeout, query.params());
             };
         if (source.generator) {
             async = source.async;
@@ -159,16 +196,28 @@
 
         this.next = function () {
             var currentPage = this.page();
-            this.page(currentPage + 1);
+            var next = currentPage + 1;
+            if (next > this.totalPages()) {
+                next = this.totalPages();
+            }
+            this.page(next);
         }.bind(this);
 
         this.previous = function () {
             var currentPage = this.page();
-            this.page(currentPage === 0 ? 0 : currentPage - 1);
+            var prev = currentPage === 0 ? 0 : currentPage - 1;
+            if (prev > this.totalPages()) {
+                prev = this.totalPages();
+            }
+            if (prev > 0) {
+                this.page(prev);
+            }
         }.bind(this);
 
         this.specific = function (page) {
-            this.page(page);
+            if (page > 0 && page < this.totalPages()) {
+                this.page(page);
+            }
         }.bind(this);
 
         this.first = function () {
